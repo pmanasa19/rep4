@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="6519320e-2e9a-4e19-b61a-ff07dae64f72" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="choiceFlow" doc:id="af9fddd1-bd2d-4c0f-834d-df651664b608" >
+		<http:listener doc:name="Listener" doc:id="9b58ea83-b3ab-49b3-a2a4-3bffc4fd2b64" config-ref="HTTP_Listener_config" path="name"/>
+		<set-variable value="#[attributes.queryParams.age]" doc:name="Set Variable" doc:id="e07838e0-c35c-44dd-90ab-171925735463" variableName="agee"/>
+		<choice doc:name="Choice" doc:id="0781347d-4b32-4d02-a25e-12659c58aa56">
+			<when expression="#[vars.agee &gt;= '18']">
+				<ee:transform doc:name="Transform Message" doc:id="ec1ae65a-a375-4391-821b-117ff22efd8c" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"result": "eligible for voter id"
+	
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="bb7a1054-d053-4de7-9aea-faedb4fe2753" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"result": "not-eligible for voter id"
+	
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<ee:transform doc:name="Transform Message" doc:id="2c748abb-f1d9-478b-ab34-7d6f5925a62b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
